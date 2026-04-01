@@ -8,7 +8,7 @@ Claude Code Pluginを使用してTsumikiをインストールします：
 
 ```bash
 /plugin marketplace add https://github.com/classmethod/tsumiki.git
-/plugin install tsumiki@tsumiki 
+/plugin install tsumiki@tsumiki
 ```
 
 **注意**: コマンドは `/tsumiki:` プレフィックス付きで実行します（例：`/tsumiki:kairo-requirements`）。
@@ -26,7 +26,7 @@ Claude Code Pluginを使用してTsumikiをインストールします：
 **例**: `kairo-requirements` 実行時
 ```
 docs/rule/                    # 全コマンド共通ルール
-docs/rule/kairo/              # kairoコマンド共通ルール  
+docs/rule/kairo/              # kairoコマンド共通ルール
 docs/rule/kairo/requirements/ # kairo-requirements専用ルール
 ```
 
@@ -44,42 +44,6 @@ claude_docker/ ディレクトリを参考に構築してください（plugin�
 ※これはtsumikiの長時間実行の試験をする目的で作成されました。実プロジェクトでの適用についてはそれぞれのプロジェクトで判断・変更してください
 
 改善方法についてのPRをお待ちしてます
-
-### TDDコマンド
-
-TASK作成時に `TDD` と判定している場合で個別にTDDプロセスを実行したい場合は、以下のコマンドを順次実行できます：
-
-```
-# TDD要件定義
-/tsumiki:tdd-requirements タスクファイル名　TASK番号
-
-# テストケース作成
-/tsumiki:tdd-testcases タスクファイル名　TASK番号
-
-# テスト実装（Red）
-/tsumiki:tdd-red タスクファイル名　TASK番号
-
-# 最小実装（Green）
-/tsumiki:tdd-green タスクファイル名　TASK番号
-
-# リファクタリング
-/tsumiki:tdd-refactor タスクファイル名　TASK番号
-
-# TDD完了確認
-/tsumiki:tdd-verify-complete タスクファイル名　TASK番号
-```
-
-### DIRECTコマンド
-
-TASK作成時に `DIRECT` と判定している場合は、以下のコマンドを順次実行できます：
-
-```
-# DIRECT準備
-/tsumiki:direct-setup タスクファイル名　TASK番号
-
-# DIRECT検証
-/tsumiki:direct-verify タスクファイル名　TASK番号
-```
 
 ### Kairoコマンド（包括的フロー）
 
@@ -157,7 +121,6 @@ Kairoは以下を生成します：
 #### 5. 実装
 
 タスクを確認した後、実装を開始します：
-（TDDサイクルまたはDIRECTを手動実行をお勧めします
 
 ```
 # 全タスクを順番に実装
@@ -167,9 +130,8 @@ Kairoは以下を生成します：
 /tsumiki:kairo-implement  タスクファイル名　TASK番号
 
 # タスク範囲を指定して実装 タスクディレクトリ名　開始TASK番号 終了TASK番号
-/tsumiki:kairo-loop 
-（実行中にcompactが発動しても安定して「長時間処理」が可能です
-
+/tsumiki:kairo-loop
+（実行中にcompactが発動しても安定して「長時間処理」が可能です）
 ```
 
 Kairoは各タスクに対して内部的にTDDコマンドを使用して以下のプロセスを実行します：
@@ -179,6 +141,60 @@ Kairoは各タスクに対して内部的にTDDコマンドを使用して以下
 4. 最小実装（tdd-green）
 5. リファクタリング（tdd-refactor）
 6. TDD完了確認（tdd-verify-complete）
+
+#### kairo-implement（Skills版）
+
+Skills版のkairo-implementは、Claude Codeのタスクシステムと連携した高度な実装スキルです。
+
+```
+/tsumiki:kairo-implement [要件名] [TASK-ID] [--hil]
+```
+
+**特徴**:
+- Claude Codeタスクシステム（TaskList/TaskGet/TaskUpdate）との連携
+- `--hil` オプションによるHuman-in-the-loop対応
+- `--model`, `--think-model`, `--tdd-model`, `--note-model` によるモデル指定
+- TDDタスクとDIRECTタスクの自動判定・実行
+
+**引数省略時の動作**:
+- 要件名: Claude Codeタスクのmetadataから自動取得
+- TASK-ID: blockedByが空かつpendingの最初のタスクを自動選択
+
+### TDDコマンド
+
+TASK作成時に `TDD` と判定している場合で個別にTDDプロセスを実行したい場合は、以下のコマンドを順次実行できます：
+
+```
+# TDD要件定義
+/tsumiki:tdd-requirements タスクファイル名　TASK番号
+
+# テストケース作成
+/tsumiki:tdd-testcases タスクファイル名　TASK番号
+
+# テスト実装（Red）
+/tsumiki:tdd-red タスクファイル名　TASK番号
+
+# 最小実装（Green）
+/tsumiki:tdd-green タスクファイル名　TASK番号
+
+# リファクタリング
+/tsumiki:tdd-refactor タスクファイル名　TASK番号
+
+# TDD完了確認
+/tsumiki:tdd-verify-complete タスクファイル名　TASK番号
+```
+
+### DIRECTコマンド
+
+TASK作成時に `DIRECT` と判定している場合は、以下のコマンドを順次実行できます：
+
+```
+# DIRECT準備
+/tsumiki:direct-setup タスクファイル名　TASK番号
+
+# DIRECT検証
+/tsumiki:direct-verify タスクファイル名　TASK番号
+```
 
 ### リバースエンジニアリングコマンド
 
@@ -303,6 +319,82 @@ Kairoは各タスクに対して内部的にTDDコマンドを使用して以下
 - 推定された要件は実際のビジネス要件と異なる場合があります
 - テストケースは実装状況から推定されるため、完全ではない可能性があります
 
+### ユーティリティコマンド
+
+#### help
+
+tsumikiの利用可能なコマンド一覧の表示、個別コマンドの詳細ヘルプ、困りごとからの最適コマンド検索を行います。
+
+```
+# コマンド一覧表示
+/tsumiki:help
+
+# 特定コマンドの詳細
+/tsumiki:help kairo-requirements
+
+# 困りごとから検索
+/tsumiki:help テストが失敗して原因がわからない
+```
+
+#### orchestrate
+
+複雑な依頼を自動的に分析し、必要な作業をステップに分割して、適切なエージェントチームを編成して実行します。各ステップの成功条件を自動判定し、失敗時は最大5回まで自動再試行を行います。
+
+```
+/tsumiki:orchestrate ログイン機能のテストを追加してバグを修正
+```
+
+**特徴**:
+- 依頼内容の自動分析とステップ分割
+- エージェントチームの自動編成
+- 成功条件の自動判定
+- 失敗時の自動再試行（最大5回/ステップ）
+
+#### refine-plan / refine-execute
+
+既存コードやドキュメントへの小規模な修正を計画・実行するコマンドペアです。
+
+```
+# 修正計画の作成
+/tsumiki:refine-plan テストの期待値を新しいAPI仕様に合わせて更新
+
+# 計画の実行
+/tsumiki:refine-execute .dcs/20260224_refine_xxx/plan.md
+```
+
+**refine-plan**は修正対象の特定、影響範囲の調査、実施内容の定義を行い、planファイルを出力します。
+
+**refine-execute**はplanファイルに従い、テストケースの変更、実装修正、ビルド確認、テスト実行、セキュリティチェック、差分レビューを実行します。
+
+#### auto-debug系コマンド
+
+テストやビルドの問題を自動的に診断・修正するコマンド群です。
+
+| コマンド | 説明 |
+|---------|------|
+| `auto-debug` | テストエラーの自動デバッグ。全テストケースの確認→エラー原因の調査→修正を段階的に実行（最大3ラウンド） |
+| `build-fix` | コンパイルエラー、型エラー、依存パッケージ未解決などのビルドエラーを自動修正 |
+| `env-fix` | パッケージ不足、環境変数未設定、設定ファイル不備、外部サービス未起動などの環境依存問題を自動修正 |
+| `flaky-fix` | 不安定なテスト（flaky test）の原因を分析し、テストの安定化を実施 |
+| `timeout-fix` | テスト実行のタイムアウト問題を分析し、テストの高速化または適切な分離を実施 |
+
+```
+# テストエラーの自動デバッグ
+/tsumiki:auto-debug [テストファイルパス]
+
+# ビルドエラーの修正
+/tsumiki:build-fix
+
+# 環境問題の修正
+/tsumiki:env-fix
+
+# 不安定テストの修正
+/tsumiki:flaky-fix
+
+# タイムアウト問題の修正
+/tsumiki:timeout-fix
+```
+
 ## ディレクトリ構造
 
 ```
@@ -316,8 +408,12 @@ Kairoは各タスクに対して内部的にTDDコマンドを使用して以下
 │   │   └── {要件名}/
 │   ├── design/            # 設計文書
 │   │   └── {要件名}/
-│   └── tasks/             # タスク一覧
-│       └── {要件名}/
+│   ├── tasks/             # タスク一覧
+│   │   └── {要件名}/
+│   └── dev/               # Dev Skills出力
+│       ├── context.md     # プロジェクトコンテキスト
+│       └── plans/         # 実装計画
+├── .dcs/                  # DCSコマンド出力
 ├── backend/              # バックエンドコード
 ├── frontend/             # フロントエンドコード
 └── database/             # データベース関連
