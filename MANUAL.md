@@ -395,6 +395,86 @@ tsumikiの利用可能なコマンド一覧の表示、個別コマンドの詳�
 /tsumiki:timeout-fix
 ```
 
+### セキュリティチェックスキル
+
+#### ipa-security-check
+
+IPA（情報処理推進機構）が公開する以下5つの公式資料に基づき、ソースコード・設定ファイルを静的検査して脆弱性候補を検出するスキルです。検出結果には必ず IPA 原典の出典（文書名・章・ページ・URL）が付与されます。
+
+**準拠する IPA 資料**:
+
+| 略称 | 正式名称 | 主な検査内容 |
+|---|---|---|
+| SWS | 安全なウェブサイトの作り方 改訂第7版 | 11脆弱性（SQLi / OSコマンド / トラバーサル / セッション / XSS / CSRF / HTTPヘッダ / メールヘッダ / クリックジャッキング / BoF / アクセス制御） |
+| SQL | 安全なSQLの呼び出し方 | プレースホルダ使い分け・LIKE述語・識別子検証・文字コード問題 |
+| WHC | ウェブ健康診断仕様 | 13診断項目のうち静的解析でカバー可能な観点 |
+| OPS | 安全なウェブサイトの運用管理に向けての20ヶ条 | HTTPヘッダ・依存ライブラリ・設定ファイル類 |
+| CL | セキュリティ実装チェックリスト | 改訂第7版 p.105-108 のチェックリスト |
+
+**起動方法**:
+
+```bash
+# カレントディレクトリ全体をスキャン
+/tsumiki:ipa-security-check
+
+# 指定パス / glob のみ
+/tsumiki:ipa-security-check src/
+/tsumiki:ipa-security-check **/*.php
+
+# 現ブランチと main の差分ファイルのみ
+/tsumiki:ipa-security-check --diff
+
+# カテゴリ限定
+/tsumiki:ipa-security-check --categories sqli,xss src/
+
+# 重大度フィルタ
+/tsumiki:ipa-security-check --severity high
+
+# 出力ファイル指定
+/tsumiki:ipa-security-check --output report.md,report.sarif
+```
+
+自然文（「IPA のセキュリティチェックをして」など）でも起動できます。
+
+**対応言語**: PHP / Java（`.java`, `.jsp`） / Ruby（`.rb`, `.erb`） / Python / JavaScript / TypeScript（`.vue`含む） / C# / .NET（`.cshtml`, `.aspx`含む） / Go / 各種設定ファイル（`nginx.conf`, `.htaccess`, `web.xml`, `*.yaml`, `Dockerfile` など）
+
+**生成されるファイル**:
+- `./ipa-security-report.md` - Markdown 形式のレポート
+- `./ipa-security-report.sarif` - SARIF 2.1.0 形式のレポート
+- `.tmp/ipa-security-check/` - 中間ファイル
+
+**トリアージ機能**:
+
+検出結果は Markdown レポート内に保持される `<!-- ipa-triage:begin ... ipa-triage:end -->` ブロックで状態管理できます。`snippet_hash`（rule_id + file + 正規化された code_snippet の sha256）で同定するため、行番号が変動しても次回スキャンで状態を引き継げます。
+
+| ステータス | 意味 |
+|---|---|
+| `未対応` | 未着手（新規 finding のデフォルト） |
+| `対応する` | 修正予定 / 実施中 |
+| `問題なし` | 確認の上、本物の脆弱性ではない（サマリから除外） |
+| `保留` | 一旦保留（サマリから除外） |
+
+**誤検知のインライン抑止**: ソースコードに以下のマーカーを置くと、検出段階で finding を生成しません。
+
+```
+// ipa-skip: IPA-SWS-1-SQLI-001  reason: 内部固定値を埋め込んでいるため
+```
+
+**特徴**:
+- 14体の検査エージェント（SQLi / XSS / CSRF 等）を並列起動して高速検査
+- 偽陽性レビューエージェントが周辺コード・呼び出し元を再評価して False Positive を識別
+- すべての検出結果に IPA 原典の `document / section / page / url` を必須付与
+
+#### ipa-security-guide
+
+`ipa-security-check` が出力したレポートを読み、各検出項目を優先順位付きの `tsumiki:dev-debug` 依頼リストに変換するスキルです。対象プロジェクトの言語・FW を問わず汎用的に使用できます。
+
+```bash
+/tsumiki:ipa-security-guide
+```
+
+`ipa-security-check` → `ipa-security-guide` → `tsumiki:dev-debug` の順で実行することで、脆弱性検出から修正までを一連の流れで進められます。
+
 ## ディレクトリ構造
 
 ```
