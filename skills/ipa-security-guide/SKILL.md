@@ -25,7 +25,7 @@ argument-hint: "[レポートファイルパス (省略時: ipa-security-report-
 /ipa-security-guide <レポートファイルパス> -o <出力ファイルパス>
 ```
 
-- レポートファイルパスを省略した場合は、カレントディレクトリで `ipa-security-report-*.md` に一致するファイルを自動検出する
+- レポートファイルパスを省略した場合は、`security-reports/ipa-security-report-*.md` を優先して自動検出する。見つからない場合はカレントディレクトリの `ipa-security-report-*.md` も検索する
   - **1件のみ**: 自動で使用する
   - **複数件**: ファイル名一覧を提示し、AskUserQuestion でユーザーに選んでもらう
   - **0件**: `ipa-security-report.md` へのフォールバックを試みる。それも存在しない場合はエラーを報告して終了する

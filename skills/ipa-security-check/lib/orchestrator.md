@@ -311,12 +311,13 @@ prompt: <下記>
 
 ```bash
 DATE=$(date +%Y-%m-%d)
+mkdir -p ./security-reports
 NN=01
-while [ -f "./ipa-security-report-${DATE}-${NN}.md" ]; do
+while [ -f "./security-reports/ipa-security-report-${DATE}-${NN}.md" ]; do
   NN=$(printf "%02d" $((10#$NN + 1)))
 done
-MD_OUT="./ipa-security-report-${DATE}-${NN}.md"
-SARIF_OUT="./ipa-security-report-${DATE}-${NN}.sarif"
+MD_OUT="./security-reports/ipa-security-report-${DATE}-${NN}.md"
+SARIF_OUT="./security-reports/ipa-security-report-${DATE}-${NN}.sarif"
 
 python3 .claude/skills/ipa-security-check/scripts/render_report.py \
     .tmp/ipa-security-check/findings_with_hash.json \
